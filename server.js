@@ -70,7 +70,7 @@ app.use((error, req, res, next) => {
 });
 
 // Connexion MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || mongodb+srv://<db_username>:<db_password>@cluster0.3coc2re.mongodb.net/?appName=Cluster0;
+const MONGODB_URI = process.env.MONGODB_URI || mongodb+srv://<db_username>:<db_password>@cluster0.3coc2re.mongodb.net/tilydb?appName=Cluster0;
 
 console.log('🔗 Tentative de connexion à MongoDB...');
 mongoose.connect(MONGODB_URI)
