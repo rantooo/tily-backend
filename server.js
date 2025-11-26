@@ -84,3 +84,22 @@ app.listen(PORT, () => {
   console.log(`🚀 Serveur démarré sur le port ${PORT}`);
   console.log(`🌍 Health check: http://localhost:${PORT}/api/health`);
 });
+
+// Après la connexion MongoDB, ajoutez :
+mongoose.connect(MONGODB_URI)
+  .then(async () => {
+    console.log('✅ Connecté à MongoDB');
+    
+    // Vérifier et initialiser les Fivondronana si nécessaire
+    const Fivondronana = require('./models/Fivondronana');
+    const count = await Fivondronana.countDocuments();
+    if (count === 0) {
+      console.log('⚠️  Aucun Fivondronana trouvé, initialisation...');
+      // Vous pouvez appeler un script d'initialisation ici
+    } else {
+      console.log(`📊 ${count} Fivondronana trouvés dans la base`);
+    }
+  })
+  .catch((error) => {
+    console.error('❌ Erreur MongoDB:', error);
+  });
