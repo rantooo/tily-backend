@@ -1,37 +1,30 @@
 const mongoose = require('mongoose');
 
-const beazinaSchema = new mongoose.Schema({
-  // Informations personnelles
-  karatra: String,
-  anarana: { type: String, required: true },
-  anaranafanampiny: { type: String, required: true },
-  totem: String,
-  datynahaterahana: { type: Date, required: true },
-  anaranaray: String,
-  anaranareny: String,
-  sampana: { type: String, enum: ['MV', 'MS', 'MN', 'MNF'] },
-  
-  // Fivondronana
-  fivondronana_id: Number,
-  fiangonana: String,
-  faritra: { type: String, enum: ['A', 'I', 'M', 'O', 'S'] },
-  datyfanekena: Date,
-  
-  // Ambaratonga et talents
-  ambaratonga: Number,
-  talenta: String,
-  
-  // FAFI
-  fafiStatus: { type: String, enum: ['V', 'P', 'N'], default: 'N' },
-  fafiDate: Date,
-  fafiAmount: { type: Number, default: 3000 },
-  
-  // Métadonnées
-  addedBy: { type: String, required: true },
-  photo: String,
-  
-}, {
-  timestamps: true
+const UserBzSchema = new mongoose.Schema({
+  carte: { type: String, required: true },             // bz-carte
+  nom: { type: String, required: true },               // bz-nom
+  prenom: { type: String, required: true },            // bz-prenom
+  totem: { type: String },                              // bz-totem
+  birth: { type: Date, required: true },               // bz-birth
+  father: { type: String },                             // bz-father
+  mother: { type: String },                             // bz-mother
+  sampana: { type: String, enum: ['MV','MS','MN','MNF'], default: '' }, // bz-sampana
+
+  // Fivondronana / fiangonana
+  fivLar: { type: Number },                             // bz-fiv-lar
+  fivFiang: { type: String },                            // bz-fiv-fiang
+  fivRegion: { type: String, enum: ['A','I','M','O','S'], default: '' }, // bz-fiv-region
+  fivFanek: { type: Date },                              // bz-fiv-Fanek
+
+  // Ambaratonga / Talenta
+  ambaratonga: { type: String },                        // Ambar
+  talenta: { type: String },                             // T
+
+  // Statut FAFI
+  fafiStatus: { type: String, enum: ['N','P','V'], default: 'N' }, // bz-fafi-status
+
+  createdAt: { type: Date, default: Date.now },
+  userId: { type: String, required: true }             // ID de l'utilisateur
 });
 
-module.exports = mongoose.model('Beazina', beazinaSchema);
+module.exports = mongoose.model('UserBz', UserBzSchema);
