@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error(err));
+
+
 const app = express();
 
 // Middleware de base
@@ -67,7 +72,7 @@ app.use((error, req, res, next) => {
 });
 
 // Connexion MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tily_analamanga';
+const MONGODB_URI = process.env.MONGODB_URI || mongodb+srv://<db_username>:<db_password>@cluster0.3coc2re.mongodb.net/?appName=Cluster0;
 
 console.log('🔗 Tentative de connexion à MongoDB...');
 mongoose.connect(MONGODB_URI)
