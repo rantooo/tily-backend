@@ -6,11 +6,6 @@ require('dotenv').config();
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error(err));
-
-const cors = require('cors');
-app.use(cors({
-  origin: 'https://tily-afv.netlify.app',
-
 const app = express();
 
 // Middleware de base
