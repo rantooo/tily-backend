@@ -1,40 +1,29 @@
+module.exports = router;
+
 const express = require('express');
-const Mpiandraikitra = require('../models/Mpiandraikitra');
-
 const router = express.Router();
+const UserMp = require('../models/UserMp');
 
-// GET /api/mp
-router.get('/', async (req, res) => {
+// Ajouter une fiche MP
+router.post('/', async (req, res) => {
   try {
-    const mpList = await Mpiandraikitra.find().limit(10);
-    res.json({
-      success: true,
-      data: mpList,
-      count: mpList.length
-    });
+    const newMp = new UserMp(req.body);
+    const savedMp = await newMp.save();
+    res.json({ success: true, data: savedMp });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération des MP'
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// POST /api/mp
-router.post('/', async (req, res) => {
+// Récupérer toutes les fiches MP
+router.get('/', async (req, res) => {
   try {
-    const mp = new Mpiandraikitra(req.body);
-    await mp.save();
-    res.status(201).json({
-      success: true,
-      data: mp
-    });
+    const fiches = await UserMp.find();
+    res.json({ success: true, data: fiches, count: fiches.length });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la création du MP'
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
 module.exports = router;
+
