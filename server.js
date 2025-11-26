@@ -5,90 +5,82 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || '*',
-  credentials: true
-}));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Middleware de base
+app.use(cors());
+app.use(express.json());
 
-// Routes de base
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/mp', require('./routes/mp'));
-app.use('/api/bz', require('./routes/bz'));
-app.use('/api/fivondronana', require('./routes/fivondronana'));
+// Import des routes avec gestion d'erreur
+let authRoutes, mpRoutes, bzRoutes, fivondronanaRoutes;
 
-// Health check endpoint pour Render
+try {
+  authRoutes = require('./routes/auth');
+  mpRoutes = require('./routes/mp');
+  bzRoutes = require('./routes/bz');
+  fivondronanaRoutes = require('./routes/fivondronana');
+  
+  console.log('✅ Toutes les routes chargées avec succès');
+} catch (error) {
+  console.error('❌ Erreur lors du chargement des routes:', error.message);
+  process.exit(1);
+}
+
+// Utilisation des routes avec vérification
+app.use('/api/auth', authRoutes);
+app.use('/api/mp', mpRoutes);
+app.use('/api/bz', bzRoutes);
+app.use('/api/fivondronana', fivondronanaRoutes);
+
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    message: 'Tily Backend MongoDB is running',
+    message: 'Tily Backend fonctionne!',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    routes: ['/api/auth', '/api/mp', '/api/bz', '/api/fivondronana']
   });
 });
 
 // Route racine
 app.get('/', (req, res) => {
   res.json({
-    message: 'Bienvenue sur Tily Analamanga Afovoany API',
+    message: 'API Tily Analamanga Afovoany',
     version: '1.0.0',
-    endpoints: {
-      auth: '/api/auth',
-      mp: '/api/mp', 
-      bz: '/api/bz',
-      fivondronana: '/api/fivondronana',
-      health: '/api/health'
-    }
+    status: 'active'
   });
 });
 
-// Gestion des erreurs 404
+// Gestion des routes non trouvées
 app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route non trouvée' });
+  res.status(404).json({
+    message: 'Route non trouvée',
+    path: req.originalUrl
+  });
 });
 
 // Gestion globale des erreurs
 app.use((error, req, res, next) => {
-  console.error('Error:', error);
-  res.status(500).json({ 
+  console.error('Erreur globale:', error);
+  res.status(500).json({
     message: 'Erreur interne du serveur',
     error: process.env.NODE_ENV === 'production' ? {} : error.message
   });
 });
 
-// Connexion MongoDB avec gestion d'erreurs améliorée
-const MONGODB_URI = process.env.MONGODB_URI;
+// Connexion MongoDB
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tily_analamanga';
 
-if (!MONGODB_URI) {
-  console.error('❌ MONGODB_URI non définie dans les variables d\'environnement');
-  process.exit(1);
-}
+console.log('🔗 Tentative de connexion à MongoDB...');
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('✅ Connecté à MongoDB avec succès');
+  })
+  .catch((error) => {
+    console.error('❌ Erreur de connexion MongoDB:', error.message);
+    console.log('⚠️  Le serveur continue sans MongoDB');
+  });
 
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log('✅ Connecté à MongoDB avec succès');
-  console.log('📊 Base de données:', mongoose.connection.name);
-})
-.catch((error) => {
-  console.error('❌ Erreur de connexion MongoDB:', error);
-  process.exit(1);
-});
-
-// Gestion de la déconnexion propre
-process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  console.log('👋 Connexion MongoDB fermée');
-  process.exit(0);
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
   console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-  console.log(`🌍 Environnement: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📚 API disponible sur: http://localhost:${PORT}`);
+  console.log(`🌍 Health check: http://localhost:${PORT}/api/health`);
 });
