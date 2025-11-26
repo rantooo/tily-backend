@@ -1,39 +1,25 @@
 const express = require('express');
-const Beazina = require('../models/Beazina');
-
 const router = express.Router();
+const UserBz = require('../models/UserBz');
 
-// GET /api/bz
-router.get('/', async (req, res) => {
+// Ajouter une fiche BZ
+router.post('/', async (req, res) => {
   try {
-    const bzList = await Beazina.find().limit(10);
-    res.json({
-      success: true,
-      data: bzList,
-      count: bzList.length
-    });
+    const newBz = new UserBz(req.body);
+    const savedBz = await newBz.save();
+    res.json({ success: true, data: savedBz });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération des BZ'
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// POST /api/bz
-router.post('/', async (req, res) => {
+// Récupérer toutes les fiches BZ
+router.get('/', async (req, res) => {
   try {
-    const bz = new Beazina(req.body);
-    await bz.save();
-    res.status(201).json({
-      success: true,
-      data: bz
-    });
+    const fiches = await UserBz.find();
+    res.json({ success: true, data: fiches, count: fiches.length });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la création du BZ'
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
